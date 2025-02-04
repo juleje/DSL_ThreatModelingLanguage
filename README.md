@@ -12,7 +12,7 @@ To address this question, an event-driven Domain-Specific Language (DSL) called 
 The implementation of Threat Modeling Language utilizes:
 - Eclipse Xtext for DSL development.
 - Graphviz for visualization of generated models.
-##Repository Structure
+## Repository Structure
 - /src - Source code for the DSL implementation.
 - /research - Documents and related research materials
 - /examples - Sample threat models created using TML.
