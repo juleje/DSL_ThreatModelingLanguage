@@ -1,0 +1,208 @@
+design SecureDropApplicationDesign "
+	SecureDrop is an open-source whistleblower submission system that media organizations can use to securely accept documents from and communicate with anonymous sources.
+
+	Sources and journalists connect to SecureDrop using the Tor network. The SecureDrop software is running on premises on dedicated infrastructure (two physical servers and a firewall).
+" {
+	add process aptApp name "APT" dsc "Advanced package tool, or APT, is a free-software user interface that works with core libraries to handle the installation and removal of software."
+	add process ntpApp name "NPT" dsc "The Network Time Protocol (NTP) is a networking protocol for clock synchronization between computer systems."
+	add process dnsApp name "DNS" dsc "The Domain Name System (DNS) is a hierarchical and distributed name service that provides a naming system for computers."
+	add process secureDropApp name "SecureDrop Application" dsc "The application runs on the Ubuntu OS"
+	add datastore DB dsc "A password-protected database"
+	add flow f1app secureDropApp -> DB
+	add flow f2app DB -> secureDropApp
+	add flow f4app aptApp -> secureDropApp
+	add flow f5app ntpApp -> secureDropApp
+	add flow f6app dnsApp -> secureDropApp
+	add boundary app name "SecureDrop Application Server":aptApp ntpApp dnsApp secureDropApp DB 
+	
+	add process sourceTorBrowser name "Tor Browser" dsc "Runs the Tor browser on the Tails OS and is not infected by Malware." "The document have to be supplied to the application by the source."
+	add flow sourceappf dsc "Uses the Tor protocol" sourceTorBrowser -> secureDropApp
+	add boundary sourceArea name "Source Area": sourceTorBrowser	
+	
+	add process ssh dsc "Secure Shell Protocol (SSH) is a cryptographic network protocol for operating network services securely over an unsecured network. The RSA (4096-bit GPG and SSH keys) are valid"	
+	add process tor
+	add flow adminf1 dsc "Is clearnet" ssh -> tor
+	add flow adminf2 dsc "Uses the Tor protocol" tor -> secureDropApp
+	add boundary adminarea name "Admin Workstation": ssh tor "The admin workstation runs the Tails OS and is not infected by malware. The workstation is used to monitor and work on the SecureDrop Application remotely."
+	
+	add process journalistTorBrowser name "Tor Browser" dsc "Runs the Tor browser on the Tails OS and is not infected by malware."
+	add flow journalistf dsc "Uses the Tor protocol" journalistTorBrowser -> secureDropApp
+	add boundary journalistarea name "Journalist Workstation": journalistTorBrowser "The journalist uses the SecureDrop system via his/hers workstation."
+	
+	add process torApt name "Tor apt" 
+	add datastore torRepo name "Tor repository" dsc "Collection of software packages to easily install and update Tor through the Advanced Package Tool (APT) system."
+	add process ubuntuApt name "Ubuntu apt" 
+	add datastore ubuntuRepo name "Ubuntu repository" dsc "Collection of software packages to easily install and update Ubuntu through the Advanced Package Tool (APT) system."
+	add external entity ntpServer name "NTP Server" dsc "A network device that uses the Network Time Protocol (NTP) to synchronize the clocks of computers over a network."
+	add process fpfApt name "FPF apt" 
+	add datastore fpfRepo name "FPF repository" dsc "Collection of software packages  provided by the Freedom of the Press Foundation (FPF) to easily install and update tools related to privacy through the Advanced Package Tool (APT) system."
+	add external entity smtprelay name "SMTP relay" dsc "A server that transfers email messages from one mail server to another."
+	add flow externalf1 secureDropApp -> torApt
+	add flow externalf2 torApt -> torRepo
+	add flow externalf3 secureDropApp -> ubuntuApt
+	add flow externalf4 ubuntuApt -> ubuntuRepo
+	add flow externalf5 secureDropApp -> ntpServer
+	add flow externalf6 secureDropApp -> fpfApt
+	add flow externalf7 fpfApt -> fpfRepo 
+	add flow externalf8 secureDropApp -> smtprelay
+	add boundary externalServ name "External Services": torRepo ubuntuRepo fpfRepo torApt ubuntuApt ntpServer fpfApt smtprelay "The external package uses to operate the SecureDrop application."
+}
+
+design AirgappedViewingStation "
+	When the journalist downloads the encrypted document he/she can only decrypt it in the airgapped viewing station. This is a pc that is connected to nothing. So when the document gets decrypted the malware in the meta data can only attack the the viewing station. When this happens nothing other can get infected. The viewing station can easily be wiped and reinstalled.
+
+	Decypting the document in a pc that is connected to the network will possibly affect in the infection of the whole network. To prevent this we opt for this solution.
+
+	The result of this is that an extra pc is needed only for this reason. The journalist has to go to the viewing station each time they want to open a new document which affect prodouctivity.
+" {
+	add process secureViewStation name "Secure Viewing Station"
+	add process printer name "Offline Printer" 
+	add flow securef dsc "The printer is connected by cabel and must not have not have WiFi or Bluetooth." secureViewStation -> printer 
+	add flow transfer dsc "The transfer of the encrypted file happens with a physical USB" journalistTorBrowser -> secureViewStation
+	add boundary securearea name "Secure Viewing Area": secureViewStation printer "A physically-secured and air-gapped laptop running the Tails operating system from a USB stick, that journalists use to decrypt and view submitted documents."
+	 
+	add external entity publish name "Publishing Station" dsc "The PC used to use the decrypted documents and publish articles using the documents"
+	add flow export dsc "The export of the decrypted file happens with a physical USB" secureViewStation -> publish	
+}
+
+
+countermeasure Firewalls "
+	We opt to add a firewall in the SecureDrop area so that we can control all incoming traffic.
+	We opt to add a firewall in the admin area so that we can control all the outgoing traffic to the SecureDrop area.
+	We opt to add a firewall in the journalist area so that we can control all the incomming traffic.
+
+	Addig the firewall at those places result in better controlablity of the traffic wich makes the application secure to that adversaries can not act malicious.
+
+	This decision highly impact the performance beceause each traffic package has to be scanned. Adding those expensive devices drives the cost.
+" {
+	add process firewall name "SecureDrop Dedicated Hardware Firewall" 
+	dsc "A pfSense-based which is  is a free and open source firewall and router that also features unified threat management, load balancing, multi WAN, and more."
+	add flow f3app firewall -> secureDropApp
+	change f4app destination firewall
+	change f5app destination firewall
+	change f6app destination firewall
+	add boundary secDrop name "SecureDrop Area": aptApp ntpApp dnsApp secureDropApp DB firewall
+	
+	change sourceappf destination firewall
+	
+	add process firewallAdmin name "Admin Hardware Firewall"
+	change adminf2 destination firewallAdmin
+	add flow adminf3 firewallAdmin -> firewall
+	change adminarea add firewallAdmin
+	
+	add process firewallJournalist name "Journalist Hardware Firewall"
+	change journalistf destination firewallJournalist
+	add flow jounralistf2 firewallJournalist -> firewall
+	change journalistarea add firewallJournalist
+	
+	change externalf1 source firewall
+	change externalf3 source firewall
+	change externalf5 source firewall
+	change externalf6 source firewall
+	change externalf8 source firewall
+}
+
+
+refactoring noadminjournalistFirewall "
+	We opt to delete the firewall in the admin area so that we use to control all the outgoing traffic to the SecureDrop area.
+	We opt to delete the firewall in the journalist area so that we use to control all the incoming traffic.
+
+	Deleting the firewall at those places result in no controllability of the traffic which makes the application less secure to that adversaries can possibly act malicious. But this will severely drive down cost. Those firewall where an overkill. Due to the fact that we struggle with rising cost this was an needed change. Additionally, the throughput of the system will be significantly higher. 
+
+	This decision highly impact the performance because each traffic package does not have to be scanned anymore. Removing those expensive devices drives the cost. 
+" {
+	change adminf2 destination firewall
+	remove firewallAdmin
+	
+	change journalistf destination firewall
+	remove firewallJournalist
+}
+
+
+design Monitoring "
+	We opt to add a monitoring server to the SecureDrop system. Here we run the OSSEC system on so we can monitoring every thing running on the application. The admin will get full control of the monitoring system and can be notified when something is wrong.
+
+	There was need to more controlablity of the application. There was no central point to manage the things that ware happening with the application.
+
+	This decision highly impact the ability to responed to vurnabilities. Fast response time means less down time and less affected systems.
+" {
+	add process aptMon name "APT" dsc "Advanced package tool, or APT, is a free-software user interface that works with core libraries to handle the installation and removal of software."
+	add process ntpMon name "NTP" dsc "The Network Time Protocol (NTP) is a networking protocol for clock synchronization between computer systems."
+	add process dnsMon name "DNS" dsc "The Domain Name System (DNS) is a hierarchical and distributed name service that provides a naming system for computers."
+	add process ossecClient name "OSSEC Client" dsc "OSSEC (Open Source HIDS SECurity) is a free, open-source host-based intrusion detection system (HIDS). It performs log analysis, integrity checking, Windows registry monitoring, rootkit detection, time-based alerting, and active response."
+	change app add ossecClient
+	add process ossecServer name "OSSEC Server" dsc "Sends alerts, some via email." "The server stores the OSSEC Alert Public Key the OSSEC alerts are encrypted."
+	add process postfix name "Postfix" 
+	add flow f1mon ossecClient -> ossecServer
+	add flow f2mon ossecServer -> postfix
+	add flow f3mon postfix -> firewall
+	add flow f4mon aptMon -> firewall
+	add flow f5mon ntpMon -> firewall
+	add flow f6mon dnsMon -> firewall
+	add boundary mon name "SecureDrop Monitoring Server": aptMon ntpMon dnsMon ossecServer postfix
+	change secDrop add ossecClient
+	change secDrop add aptMon 
+	change secDrop add ntpMon
+	change secDrop add dnsMon 
+	change secDrop add ossecServer
+	change secDrop add postfix 		
+}
+
+
+countermeasure SeperateFirewall "
+	We opt to add an extra firewall purly for the monitoring system.
+
+	There was need to an extra firewall for seperation of concern because the main firewalls was supposedly overworked.
+
+	This decision impact the ability to track traffic coming in the monitoring and the SecureDrop systems. Adding an extra firewall will be costly but will not have an significant impact on the budget.
+" {
+	split firewall into process appFirewall name "SecureDrop Application Dedicated Hardware Firewall" dsc "A pfSense-based which is a free and open source firewall and router that also features unified threat management, load balancing, multi WAN, and more." 
+	and process monFirewall name "SecureDrop Monitoring Dedicated Hardware Firewall" dsc "A pfSense-based which is a free and open source firewall and router that also features unified threat management, load balancing, multi WAN, and more." 
+	flows {
+		f3app -> appFirewall
+		f4app -> appFirewall
+		f5app -> appFirewall
+		f6app -> appFirewall
+		f3mon -> monFirewall
+		f4mon -> monFirewall
+		f5mon -> monFirewall
+		f6mon -> monFirewall
+		sourceappf -> appFirewall
+		adminf2 -> monFirewall
+		journalistf -> appFirewall
+		externalf1 -> appFirewall
+		externalf3 -> appFirewall
+		externalf5 -> appFirewall
+		externalf6 -> appFirewall
+		externalf8 -> appFirewall
+	}
+	add flow externalf9 monFirewall -> smtprelay  
+	add flow externalf10 monFirewall -> fpfApt
+	add flow externalf11 monFirewall -> ntpServer
+	add flow externalf12 monFirewall -> ubuntuApt
+	add flow externalf13 monFirewall -> torApt
+}
+
+refactoring mergeFirewalls "
+	We opt to remove the extra firewall purly for the monitoring system.
+
+	There was no need to an extra firewall for seperation of concern because the main firewalls was not overworked. A junior developer has done the research whether adding those firewalls will be beneficial, later his work was reviewed, and we concluded that it was not necessary to add those firewalls.
+
+	This decision impact the ability to track traffic coming in the monitoring and the SecureDrop systems. Removing an extra firewall will drive down cost but will not have an significant impact on the budget.
+"{
+	merge appFirewall and monFirewall into process firewall name "SecureDrop Dedicated Hardware Firewall" 
+	dsc "A pfSense-based which is  is a free and open source firewall and router that also features unified threat management, load balancing, multi WAN, and more."
+	change secDrop add firewall
+}
+
+refactoring externalServices "
+	We opt to make all the services in the extern services trust boundary a external entity.
+
+	There was no need to make the external services processes and datastores because we do not operate them. They are services provided by thirty parties and we do not control them. We only use them to operate the SecureDrop system.
+
+	This decision will not impact any design and is purly for aesthetic reasons.
+"{
+	merge fpfApt and fpfRepo into external entity fpfExtern name "FPF apt repository" dsc "Collection of software packages  provided by the Freedom of the Press Foundation (FPF) to easily install and update tools related to privacy through the Advanced Package Tool (APT) system."
+	merge ubuntuApt and ubuntuRepo into external entity ubuntuExtern name "Ubuntu apt repository" dsc "Collection of software packages to easily install and update Ubuntu through the Advanced Package Tool (APT) system."
+	merge torApt and torRepo into external entity torExtern name "Tor apt repository" dsc "Collection of software packages to easily install and update Tor through the Advanced Package Tool (APT) system."
+}

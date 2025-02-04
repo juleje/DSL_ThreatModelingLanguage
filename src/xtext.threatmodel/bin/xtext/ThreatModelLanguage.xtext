@@ -1,0 +1,157 @@
+grammar xtext.ThreatModelLanguage with org.eclipse.xtext.common.Terminals
+
+generate threatModelLanguage "http://www.ThreatModelLanguage.xtext"
+
+Model:
+	(elements+=Statements)*;
+	
+Statements:
+	(Grouping|Operations);
+
+Operations:
+	(Add | Remove | Modify);
+	
+//Add
+Add:
+	AddEntity  | AddFlow | AddBoundary;
+	
+AddEntity:
+	(AddProcess|AddExternal|AddDatastore); 
+
+AddProcess:
+	'add' 'process' id=ID ('name' name=STRING)? ('dsc' description=STRING)? documentation=STRING?;
+
+AddExternal:
+	'add' 'external' 'entity' id=ID ('name' name=STRING)? ('dsc' description=STRING)? documentation=STRING?;
+
+AddDatastore:
+	'add' 'datastore' id=ID ('name' name=STRING)? ('dsc' description=STRING)? documentation=STRING?;
+
+AddFlow:
+	'add' 'flow' id=ID ('name' name=STRING)? ('dsc' description=STRING)? sourceId=ID '->' destinationId=ID documentation=STRING?;
+
+
+AddBoundary:
+	'add' 'boundary' id=ID ('name' name=STRING)? ('dsc' description=STRING)? ':' (entities+=ID*) documentation=STRING?;
+	
+Remove: 
+	'remove' id=ID documentation=STRING?;
+	
+Modify:
+	(Rename | ReID | ChangeDescription | FlowSource| FlowDestination | BoundaryAddEntity| BoundaryRemoveEntity | RotateFlow | MergeEntity | SplitEntity);
+
+
+Rename:
+	'rename' id=ID 'into' newName=STRING documentation=STRING?;
+ReID:
+	'change' id=ID 'id' newId=ID documentation=STRING?;
+ //all description
+ChangeDescription:
+	'change' id=ID 'description' description=STRING documentation=STRING?;
+
+FlowSource:
+	'change' id=ID 'source' source=ID documentation=STRING?;
+	
+FlowDestination:
+	'change' id=ID 'destination' destination=ID documentation=STRING?;
+	
+BoundaryAddEntity:
+	'change' id=ID 'add' newEntity=ID documentation=STRING?;
+	
+BoundaryRemoveEntity:
+	'change' id=ID 'remove' oldEntity=ID documentation=STRING?;
+	
+RotateFlow:
+	'change' id=ID 'revert' 'flow' documentation=STRING?;
+
+MergeEntity:
+	(MergeIntoProcess|MergeIntoExternal|MergeIntoDatastore);
+	
+MergeIntoProcess:
+	'merge' entity1=ID 'and' entity2=ID 'into' 'process' id=ID ('name' name=STRING)? ('dsc' description=STRING)? documentation=STRING?;
+	
+MergeIntoExternal:
+	'merge' entity1=ID 'and' entity2=ID 'into' 'external' 'entity' id=ID ('name' name=STRING)? ('dsc' description=STRING)? documentation=STRING?;
+	
+MergeIntoDatastore:
+	'merge' entity1=ID 'and' entity2=ID 'into' 'datastore' id=ID ('name' name=STRING)? ('dsc' description=STRING)? documentation=STRING?;
+
+SplitEntity:
+	(SplitProcessAndProcess|SplitsProcessAndDatastore|SplitsDatastoreAndProcess|SplitProcessAndExternal|SplitExternalAndProcess|SplitDatastoreAndExternal|SplitExternalAndDatastore|SplitDatastoreAndDatastore|SplitExternalAndExternal);
+	
+FlowFix:
+	flowId=ID '->' entityId=ID;
+	
+SplitProcessAndProcess:
+	'split' id=ID 'into' 'process' entity1=ID ('name' entity1Name=STRING)? ('dsc' entity1Description=STRING)? 'and' 'process' entity2=ID ('name' entity2Name=STRING)? ('dsc' entity2Description=STRING)? 'flows' '{' 
+		(flowFix+=FlowFix)*
+	'}' documentation=STRING?;
+
+SplitsProcessAndDatastore:
+	'split' id=ID 'into' 'process' entity1=ID ('name' entity1Name=STRING)? ('dsc' entity1Description=STRING)? 'and' 'datastore' entity2=ID ('name' entity2Name=STRING)? ('dsc' entity2Description=STRING)? 'flows' '{' 
+		(flowFix+=FlowFix)*
+	'}' documentation=STRING?;
+
+SplitsDatastoreAndProcess:
+	'split' id=ID 'into' 'datastore' entity1=ID ('name' entity1Name=STRING)? ('dsc' entity1Description=STRING)? 'and' 'process' entity2=ID ('name' entity2Name=STRING)? ('dsc' entity2Description=STRING)? 'flows' '{' 
+		(flowFix+=FlowFix)*
+	'}' documentation=STRING?;
+	
+SplitProcessAndExternal:
+	'split' id=ID 'into' 'process' entity1=ID ('name' entity1Name=STRING)? ('dsc' entity1Description=STRING)? 'and' 'external' 'entity' entity2=ID ('name' entity2Name=STRING)? ('dsc' entity2Description=STRING)? 'flows' '{' 
+		(flowFix+=FlowFix)*
+	'}' documentation=STRING?;
+	
+SplitExternalAndProcess:
+	'split' id=ID 'into' 'external' 'entity' entity1=ID ('name' entity1Name=STRING)? ('dsc' entity1Description=STRING)? 'and' 'process' entity2=ID ('name' entity2Name=STRING)? ('dsc' entity2Description=STRING)? 'flows' '{' 
+		(flowFix+=FlowFix)*
+	'}' documentation=STRING?;	
+	
+SplitDatastoreAndExternal:
+	'split' id=ID 'into' 'datastore' entity1=ID ('name' entity1Name=STRING)? ('dsc' entity1Description=STRING)? 'and' 'external' 'entity' entity2=ID ('name' entity2Name=STRING)? ('dsc' entity2Description=STRING)? 'flows' '{' 
+		(flowFix+=FlowFix)*
+	'}' documentation=STRING?;
+
+SplitExternalAndDatastore:
+	'split' id=ID 'into' 'external' 'entity' entity1=ID ('name' entity1Name=STRING)? ('dsc' entity1Description=STRING)? 'and' 'datastore' entity2=ID ('name' entity2Name=STRING)? ('dsc' entity2Description=STRING)? 'flows' '{' 
+		(flowFix+=FlowFix)*
+	'}' documentation=STRING?;
+		
+SplitDatastoreAndDatastore:
+	'split' id=ID 'into' 'datastore' entity1=ID ('name' entity1Name=STRING)? ('dsc' entity1Description=STRING)? 'and' 'datastore' entity2=ID ('name' entity2Name=STRING)? ('dsc' entity2Description=STRING)? 'flows' '{' 
+		(flowFix+=FlowFix)*
+	'}' documentation=STRING?;
+
+SplitExternalAndExternal:
+	'split' id=ID 'into' 'external' 'entity' entity1=ID ('name' entity1Name=STRING)? ('dsc' entity1Description=STRING)? 'and' 'external' 'entity' entity2=ID ('name' entity2Name=STRING)? ('dsc' entity2Description=STRING)? 'flows' '{' 
+			(flowFix+=FlowFix)*
+	'}' documentation=STRING?;
+
+Grouping:
+	(Countermeasure|Design|Refactoring);
+	
+Countermeasure:
+	'countermeasure' name=ID description=STRING '{'
+		(operatoins+=Operations)*
+	'}';
+	
+Design:
+	'design' name=ID description=STRING '{'
+		(operatoins+=Operations)*
+	'}';
+	
+	
+Refactoring:
+	'refactoring' name=ID description=STRING '{'
+		(operatoins+=Operations)*
+	'}';
+	
+Testing:
+	'testing' name=ID description=STRING '{'
+		(operatoins+=Operations)*
+	'}';
+	
+Sketching:
+	'sketching' name=ID description=STRING '{'
+		(operatoins+=Operations)*
+	'}';

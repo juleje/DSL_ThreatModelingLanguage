@@ -1,0 +1,28 @@
+design initialDesign "The initial design of the software" {
+	add process Application dsc " Backend Java application "
+	add datastore DB dsc " NoSQL "
+	add flow internf1 Application -> DB
+	add flow internf2 DB -> Application
+	add external entity Browser
+	add flow f1 dsc " HTTPS " Application -> Browser
+	add flow f2 dsc " HTTPS " Browser -> Application
+	add external entity ExternAPI name "External API" 
+	dsc "An api provided by an external application " 
+	"When using the functionality of an
+external application the security part is not our
+responsibility . "
+	add flow f3 dsc " HTTPS " Application -> ExternAPI
+	add flow f4 dsc " HTTPS " ExternAPI -> Application
+	add boundary ApplicatieENV name " Application environment":
+	Application DB 
+	" The application and database run in the
+same environment so there exists a high level of mutual
+trust between both parties involved."
+}
+
+
+
+
+
+
+

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="threatModelLanguage" nsURI="http://www.ThreatModelLanguage.xtext"
+    nsPrefix="threatModelLanguage">
+  <eClassifiers xsi:type="ecore:EClass" name="Model">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="elements" upperBound="-1"
+        eType="#//Statements" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Statements"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Operations" eSuperTypes="#//Statements">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="documentation" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Add" eSuperTypes="#//Operations">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="description" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AddEntity" eSuperTypes="#//Add"/>
+  <eClassifiers xsi:type="ecore:EClass" name="AddProcess" eSuperTypes="#//AddEntity"/>
+  <eClassifiers xsi:type="ecore:EClass" name="AddExternal" eSuperTypes="#//AddEntity"/>
+  <eClassifiers xsi:type="ecore:EClass" name="AddDatastore" eSuperTypes="#//AddEntity"/>
+  <eClassifiers xsi:type="ecore:EClass" name="AddFlow" eSuperTypes="#//Add">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="sourceId" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="destinationId" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AddBoundary" eSuperTypes="#//Add">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="entities" unique="false"
+        upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Remove" eSuperTypes="#//Operations"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Modify" eSuperTypes="#//Operations"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Rename" eSuperTypes="#//Modify">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="newName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ReID" eSuperTypes="#//Modify">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="newId" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ChangeDescription" eSuperTypes="#//Modify">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="description" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="FlowSource" eSuperTypes="#//Modify">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="source" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="FlowDestination" eSuperTypes="#//Modify">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="destination" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="BoundaryAddEntity" eSuperTypes="#//Modify">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="newEntity" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="BoundaryRemoveEntity" eSuperTypes="#//Modify">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="oldEntity" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RotateFlow" eSuperTypes="#//Modify"/>
+  <eClassifiers xsi:type="ecore:EClass" name="MergeEntity" eSuperTypes="#//Modify">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="entity1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="entity2" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="description" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MergeIntoProcess" eSuperTypes="#//MergeEntity"/>
+  <eClassifiers xsi:type="ecore:EClass" name="MergeIntoExternal" eSuperTypes="#//MergeEntity"/>
+  <eClassifiers xsi:type="ecore:EClass" name="MergeIntoDatastore" eSuperTypes="#//MergeEntity"/>
+  <eClassifiers xsi:type="ecore:EClass" name="SplitEntity" eSuperTypes="#//Modify">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="entity1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="entity1Name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="entity1Description" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="entity2" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="entity2Name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="entity2Description" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="flowFix" upperBound="-1"
+        eType="#//FlowFix" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="FlowFix">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="flowId" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="entityId" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SplitProcessAndProcess" eSuperTypes="#//SplitEntity"/>
+  <eClassifiers xsi:type="ecore:EClass" name="SplitsProcessAndDatastore" eSuperTypes="#//SplitEntity"/>
+  <eClassifiers xsi:type="ecore:EClass" name="SplitsDatastoreAndProcess" eSuperTypes="#//SplitEntity"/>
+  <eClassifiers xsi:type="ecore:EClass" name="SplitProcessAndExternal" eSuperTypes="#//SplitEntity"/>
+  <eClassifiers xsi:type="ecore:EClass" name="SplitExternalAndProcess" eSuperTypes="#//SplitEntity"/>
+  <eClassifiers xsi:type="ecore:EClass" name="SplitDatastoreAndExternal" eSuperTypes="#//SplitEntity"/>
+  <eClassifiers xsi:type="ecore:EClass" name="SplitExternalAndDatastore" eSuperTypes="#//SplitEntity"/>
+  <eClassifiers xsi:type="ecore:EClass" name="SplitDatastoreAndDatastore" eSuperTypes="#//SplitEntity"/>
+  <eClassifiers xsi:type="ecore:EClass" name="SplitExternalAndExternal" eSuperTypes="#//SplitEntity"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Grouping" eSuperTypes="#//Statements">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="description" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="operatoins" upperBound="-1"
+        eType="#//Operations" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Countermeasure" eSuperTypes="#//Grouping"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Design" eSuperTypes="#//Grouping"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Refactoring" eSuperTypes="#//Grouping"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Testing">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="description" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="operatoins" upperBound="-1"
+        eType="#//Operations" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Sketching">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="description" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="operatoins" upperBound="-1"
+        eType="#//Operations" containment="true"/>
+  </eClassifiers>
+</ecore:EPackage>
